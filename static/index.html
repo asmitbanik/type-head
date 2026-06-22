@@ -15,7 +15,6 @@
     <header class="header">
       <div class="logo-block">
         <h1 class="logo">Type<span class="accent">Head</span></h1>
-        <p class="tagline">// sketchy retro search typeahead</p>
       </div>
       <div class="mode-toggle" role="group" aria-label="Ranking mode">
         <button type="button" class="mode-btn active" data-mode="basic">BASIC</button>
@@ -39,6 +38,10 @@
               aria-expanded="false"
             />
             <div id="suggestions" class="suggestions hidden" role="listbox" aria-label="Suggestions">
+              <div class="suggestions-header">
+                <span>query</span>
+                <span>popularity</span>
+              </div>
               <ul id="suggestions-list"></ul>
             </div>
           </div>
@@ -51,7 +54,9 @@
       <section class="results-grid">
         <div class="sketch-box panel">
           <h2 class="panel-title">[ RESPONSE ]</h2>
-          <pre id="response-box" class="terminal-output">// submit a search to see response</pre>
+          <div id="response-box" class="terminal-output">
+            <p class="response-placeholder">submit a search to see popularity update</p>
+          </div>
         </div>
         <div class="sketch-box panel">
           <h2 class="panel-title">[ TRENDING ]</h2>

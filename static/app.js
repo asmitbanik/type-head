@@ -29,6 +29,45 @@
   function show(el) { el.classList.remove("hidden"); }
   function hide(el) { el.classList.add("hidden"); }
 
+  function popularityMeta(count, maxCount) {
+    const max = Math.max(maxCount, count, 1);
+    const log = Math.log10(1 + count);
+    const maxLog = Math.log10(1 + max);
+    const pct = Math.round((log / maxLog) * 100);
+    let label;
+    if (pct >= 85) label = "viral";
+    else if (pct >= 65) label = "hot";
+    else if (pct >= 40) label = "popular";
+    else if (pct >= 15) label = "rising";
+    else label = "low";
+    return { pct, label };
+  }
+
+  function popularityHtml(count, maxCount) {
+    const { pct, label } = popularityMeta(count, maxCount);
+    return `
+      <div class="popularity" title="search popularity">
+        <div class="pop-bar" aria-hidden="true"><div class="pop-fill" style="width:${pct}%"></div></div>
+        <span class="pop-label">${label}</span>
+      </div>`;
+  }
+
+  function renderSearchResponse(data) {
+    const maxPop = Math.max(data.count || 1, 1000);
+    const { pct, label } = popularityMeta(data.count || 0, maxPop);
+    responseBox.innerHTML = `
+      <div class="response-card">
+        <div class="response-row"><span class="response-key">query</span><span class="response-val">${escapeHtml(data.query)}</span></div>
+        <div class="response-row"><span class="response-key">status</span><span class="response-val">${escapeHtml(data.message || data.status)}</span></div>
+        <div class="response-row"><span class="response-key">popularity</span>
+          <div class="popularity inline">
+            <div class="pop-bar"><div class="pop-fill" style="width:${pct}%"></div></div>
+            <span class="pop-label">${label}</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
   modeBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       modeBtns.forEach((b) => b.classList.remove("active"));
@@ -82,11 +121,12 @@
       hideSuggestions();
       return;
     }
+    const maxCount = Math.max(...items.map((i) => i.count || 0), 1);
     items.forEach((item, i) => {
       const li = document.createElement("li");
       li.role = "option";
       li.dataset.index = String(i);
-      li.innerHTML = `<span>${escapeHtml(item.query)}</span><span class="count">${formatCount(item.count)}</span>`;
+      li.innerHTML = `<span class="query-text">${escapeHtml(item.query)}</span>${popularityHtml(item.count, maxCount)}`;
       li.addEventListener("mousedown", (e) => {
         e.preventDefault();
         selectSuggestion(item.query);
@@ -141,7 +181,7 @@
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
 
-      responseBox.textContent = JSON.stringify(data, null, 2);
+      renderSearchResponse(data);
       hide(searchStatus);
       hideSuggestions();
       loadTrending();
@@ -165,10 +205,19 @@
       const res = await fetch(`${API}/trending?n=10`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
+      const items = data.trending || [];
+      const maxCount = Math.max(...items.map((i) => i.count || 0), 1);
       trendingList.innerHTML = "";
-      (data.trending || []).forEach((item) => {
+      items.forEach((item) => {
         const li = document.createElement("li");
-        li.innerHTML = `${escapeHtml(item.query)} <span class="score">[${item.score}] · ${formatCount(item.count)}</span>`;
+        li.innerHTML = `
+          <div class="trending-item">
+            <span class="trending-query">${escapeHtml(item.query)}</span>
+            <div class="trending-meta">
+              <span class="trend-badge">momentum ${item.score.toFixed(1)}</span>
+              ${popularityHtml(item.count, maxCount)}
+            </div>
+          </div>`;
         li.addEventListener("click", () => {
           input.value = item.query;
           submitSearch(item.query);
@@ -191,7 +240,7 @@
       const data = await res.json();
       const hitRate = (data.cache?.hit_rate ?? data.suggest_cache_hit_rate ?? 0) * 100;
       statHit.textContent = `${hitRate.toFixed(1)}%`;
-      statTerms.textContent = formatCount(data.terms_indexed || 0);
+      statTerms.textContent = formatCompact(data.terms_indexed || 0);
       const reduction = (data.batch?.write_reduction ?? 0) * 100;
       statBatch.textContent = `${reduction.toFixed(1)}%`;
     } catch (_) { /* silent */ }
@@ -203,7 +252,7 @@
     return d.innerHTML;
   }
 
-  function formatCount(n) {
+  function formatCompact(n) {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
     if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
     return String(n);
