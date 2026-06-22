@@ -1,0 +1,1 @@
+"""Search typeahead system."""

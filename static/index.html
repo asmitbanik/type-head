@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TypeHead — Search Typeahead</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Permanent+Marker&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="scanlines"></div>
+  <div class="container">
+    <header class="header">
+      <div class="logo-block">
+        <h1 class="logo">Type<span class="accent">Head</span></h1>
+        <p class="tagline">// sketchy retro search typeahead</p>
+      </div>
+      <div class="mode-toggle" role="group" aria-label="Ranking mode">
+        <button type="button" class="mode-btn active" data-mode="basic">BASIC</button>
+        <button type="button" class="mode-btn" data-mode="enhanced">ENHANCED</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="search-panel sketch-box">
+        <label class="search-label" for="search-input">&gt; SEARCH_QUERY</label>
+        <div class="search-row">
+          <div class="input-wrap">
+            <input
+              id="search-input"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="type a prefix..."
+              aria-autocomplete="list"
+              aria-controls="suggestions-list"
+              aria-expanded="false"
+            />
+            <div id="suggestions" class="suggestions hidden" role="listbox" aria-label="Suggestions">
+              <ul id="suggestions-list"></ul>
+            </div>
+          </div>
+          <button type="button" id="search-btn" class="btn-primary">SEARCH</button>
+        </div>
+        <div id="search-status" class="status hidden" aria-live="polite"></div>
+        <div id="search-error" class="error hidden" role="alert"></div>
+      </section>
+
+      <section class="results-grid">
+        <div class="sketch-box panel">
+          <h2 class="panel-title">[ RESPONSE ]</h2>
+          <pre id="response-box" class="terminal-output">// submit a search to see response</pre>
+        </div>
+        <div class="sketch-box panel">
+          <h2 class="panel-title">[ TRENDING ]</h2>
+          <div id="trending-loading" class="loading">loading...</div>
+          <ol id="trending-list" class="trending-list hidden"></ol>
+          <div id="trending-error" class="error hidden"></div>
+        </div>
+      </section>
+
+      <section class="sketch-box panel stats-panel">
+        <h2 class="panel-title">[ SYSTEM_STATS ]</h2>
+        <div id="stats-grid" class="stats-grid">
+          <div class="stat"><span class="stat-label">cache hit</span><span id="stat-hit" class="stat-value">—</span></div>
+          <div class="stat"><span class="stat-label">terms</span><span id="stat-terms" class="stat-value">—</span></div>
+          <div class="stat"><span class="stat-label">write reduction</span><span id="stat-batch" class="stat-value">—</span></div>
+          <div class="stat"><span class="stat-label">cache node</span><span id="stat-node" class="stat-value">—</span></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>↑↓ navigate</span>
+      <span>↵ search</span>
+      <span>esc close</span>
+      <a href="/docs" target="_blank">API docs</a>
+    </footer>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
