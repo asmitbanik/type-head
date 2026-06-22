@@ -6,5 +6,6 @@ __pycache__/
 data/typeahead.db
 data/cache/
 bench_results.json
+demo.mp4
 .DS_Store
 *.log
